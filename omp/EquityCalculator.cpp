@@ -516,7 +516,9 @@ void EquityCalculator::enumerateBoardRec(const Hand* playerHands, unsigned nplay
 // Lookup cached results for particular preflop.
 bool EquityCalculator::lookupResults(uint64_t preflopId, BatchResults& results)
 {
-    if (!mDeadCards && !mBoardCards && lookupPrecalculatedResults(preflopId, results))
+    if (mBoardCards || mDeadCards)
+        return false;
+    if (lookupPrecalculatedResults(preflopId, results))
         return true;
 
     std::lock_guard<std::mutex> lock(mMutex);
