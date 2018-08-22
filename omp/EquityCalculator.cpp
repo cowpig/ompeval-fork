@@ -194,7 +194,8 @@ void EquityCalculator::simulateRandomWalkMonteCarlo()
     updateResults(stats, true);
 }
 
-// Randomize holecards using rejection sampling. Returns false if maximum number of attempts was reached.
+// Randomize holecards using rejection sampling[0]. Returns false if maximum number of attempts was reached.
+// [0] https://en.wikipedia.org/wiki/Rejection_sampling#Examples
 bool EquityCalculator::randomizeHoleCards(uint64_t &usedCardsMask, unsigned* comboIndexes, Hand* playerHands,
                                           Rng& rng, FastUniformIntDistribution<unsigned,21>* comboDists)
 {

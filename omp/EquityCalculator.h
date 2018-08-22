@@ -23,7 +23,6 @@ namespace omp {
 class EquityCalculator
 {
 public:
-
     struct Results
     {
         // Number of players.
@@ -149,6 +148,8 @@ private:
 
     void simulateRegularMonteCarlo();
     void simulateRandomWalkMonteCarlo();
+    void simulateDynamicMonteCarlo();
+
     bool randomizeHoleCards(uint64_t &usedCardsMask, unsigned* comboIndexes, Hand* playerHands,
                             Rng& rng, FastUniformIntDistribution<unsigned,21>*comboDists);
     OMP_FORCE_INLINE void randomizeBoard(Hand& board, unsigned remainingCards, uint64_t usedCardsMask,

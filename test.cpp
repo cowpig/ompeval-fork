@@ -303,6 +303,37 @@ class EquityCalculatorTest : public ttest::TestBase
             throw ttest::TestException("Didn't converge to correct results in time!");
     }
 
+    void dynamicMonteCarloTest(const TestCase& tc)
+    {
+        double hands = accumulate(tc.expectedResults.begin(), tc.expectedResults.end(), 0.0);
+        std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
+        bool timeout = false;
+
+        throw ttest::TestException("TODO")
+        // TODO:
+        //  use dyanmic monte carlo
+        //  add up wins for all the hands for each player
+        //  perform the same calc with those numbers
+        auto callback = [&](const EquityCalculator::Results& r){
+            double maxErr = 0;
+            for (unsigned i = 0; i < (1u << tc.ranges.size()); ++i)
+                maxErr = max(std::abs(tc.expectedResults[i] / hands - (double) r.winsByPlayerMask[i] / r.hands), maxErr);
+            if (maxErr < 2e-4)
+                eq.stop();
+            if (r.time > 10) {
+                timeout = true;
+                eq.stop();
+            }
+        };
+        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
+                false, 0, callback, 0.1))
+            throw ttest::TestException("Invalid hand ranges!");
+        eq.wait();
+        if (timeout)
+            throw ttest::TestException("Didn't converge to correct results in time!");
+
+    }
+
     TTEST_BEFORE()
     {
         eq.setTimeLimit(0);
@@ -368,16 +399,28 @@ class EquityCalculatorTest : public ttest::TestBase
 
     TTEST_CASE("test 1 - enumeration") { enumTest(TESTDATA[0]); }
     TTEST_CASE("test 1 - monte carlo") { monteCarloTest(TESTDATA[0]); }
+    TTEST_CASE("test 1 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[0]); }
+
     TTEST_CASE("test 2 - enumeration") { enumTest(TESTDATA[1]); }
     TTEST_CASE("test 2 - monte carlo") { monteCarloTest(TESTDATA[1]); }
+    TTEST_CASE("test 2 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[1]); }
+
     TTEST_CASE("test 3 - enumeration") { enumTest(TESTDATA[2]); }
     TTEST_CASE("test 3 - monte carlo") { monteCarloTest(TESTDATA[2]); }
+    TTEST_CASE("test 3 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[2]); }
+
     TTEST_CASE("test 4 - enumeration") { enumTest(TESTDATA[3]); }
     TTEST_CASE("test 4 - monte carlo") { monteCarloTest(TESTDATA[3]); }
+    TTEST_CASE("test 4 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[3]); }
+
     TTEST_CASE("test 5 - enumeration") { enumTest(TESTDATA[4]); }
     TTEST_CASE("test 5 - monte carlo") { monteCarloTest(TESTDATA[4]); }
+    TTEST_CASE("test 5 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[4]); }
+
     TTEST_CASE("test 6 - enumeration") { enumTest(TESTDATA[5]); }
     TTEST_CASE("test 6 - monte carlo") { monteCarloTest(TESTDATA[5]); }
+    TTEST_CASE("test 6 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[5]); }
+
 };
 
 void printBuildInfo()
