@@ -3,7 +3,7 @@
 
 namespace omp {
 
-static const unsigned MAX_PLAYERS = 6;
+static const unsigned MAX_PLAYERS = 10;
 
 static const unsigned CARD_COUNT = 52;
 static const unsigned RANK_COUNT = 13;
