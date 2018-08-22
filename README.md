@@ -1,5 +1,7 @@
 # OMPEval
 
+This is a fork of [OMPEval](https://github.com/zekyll/OMPEval) in which I'm adding a couple features.
+
 OMPEval is a fast C++ hand evaluator and equity calculator for Texas Holdem poker.
 
 ## Hand Evaluator
