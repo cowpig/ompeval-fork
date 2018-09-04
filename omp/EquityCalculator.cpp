@@ -203,7 +203,7 @@ void EquityCalculator::simulateRandomWalkMonteCarlo()
 // same as random walk monte carlo, but records results for all player/hand pairs
 void EquityCalculator::simulateDynamicMonteCarlo()
 {
-    return
+    return;
 }
 
 
