@@ -271,7 +271,7 @@ class EquityCalculatorTest : public ttest::TestBase
     void enumTest(const TestCase& tc)
     {
         std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
-        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead), true))
+        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead), AnalysisType::enumeration))
                 throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
         auto results = eq.getResults();
@@ -296,7 +296,7 @@ class EquityCalculatorTest : public ttest::TestBase
             }
         };
         if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
-                false, 0, callback, 0.1))
+                AnalysisType::monte_carlo, 0, callback, 0.1))
             throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
         if (timeout)
@@ -309,7 +309,6 @@ class EquityCalculatorTest : public ttest::TestBase
         std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
         bool timeout = false;
 
-        throw ttest::TestException("TODO")
         // TODO:
         //  use dyanmic monte carlo
         //  add up wins for all the hands for each player
@@ -326,7 +325,7 @@ class EquityCalculatorTest : public ttest::TestBase
             }
         };
         if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
-                false, 0, callback, 0.1))
+                AnalysisType::dynamic_monte_carlo, 0, callback, 0.1))
             throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
         if (timeout)
@@ -378,7 +377,7 @@ class EquityCalculatorTest : public ttest::TestBase
             if (r.time >= 2)
                 eq.stop();
         };
-        eq.start({"random", "random"}, 0, 0, false, 0, callback, 1.0);
+        eq.start({"random", "random"}, 0, 0, AnalysisType::monte_carlo, 0, callback, 1.0);
         eq.wait();
         auto r = eq.getResults();
         TTEST_EQUAL(r.time >= 0.45 && r.time <= 0.55, true);
@@ -391,7 +390,7 @@ class EquityCalculatorTest : public ttest::TestBase
             if (r.time >= 2)
                 eq.stop();
         };
-        eq.start({"random", "random"}, 0, 0, false, 0, callback, 1.0);
+        eq.start({"random", "random"}, 0, 0, AnalysisType::monte_carlo, 0, callback, 1.0);
         eq.wait();
         auto r = eq.getResults();
         TTEST_EQUAL(r.hands >= 3000000 && r.hands <= 3000000 + 16 * 0x1000, true);

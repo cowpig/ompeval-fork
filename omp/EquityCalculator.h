@@ -18,6 +18,13 @@
 
 namespace omp {
 
+enum class AnalysisType
+{
+    enumeration,
+    monte_carlo,
+    dynamic_monte_carlo
+};
+
 // Calculates all-in equities in Texas Holdem for given player hand ranges, board cards and dead cards. Supports both
 // exact enumeration and monte carlo simulation.
 class EquityCalculator
@@ -57,7 +64,7 @@ public:
         // How many showdowns were actually evaluated (instead of using lookups or isomorphism).
         uint64_t evaluations = 0;
         // Whether enumeration or monte carlo was used.
-        bool enumerateAll = false;
+        AnalysisType analysisType = AnalysisType::enumeration;
         // Is calculation finished. (Includes stopping.)
         bool finished = false;
     };
@@ -66,13 +73,13 @@ public:
     // After calling start() succesfully, wait() must be called in order wait for threads to finish.
     // handRanges: hand ranges for each player
     // boardCards/deadCards: bitmasks for board and dead cards
-    // enumerateAll: true for exact enumeration, false for monte carlo
+    // analysisType: enumeration, monte_carlo, or dynamic_monte_carlo
     // stdevTarget: stops monte carlo when standard deviation is smaller than this, use 0 for infinite simulation
     // callback: function that is called periodically with incomplete results
     // updateInterval: how often callback is called
     // threadCount: number of threads to spawn, 0 for maximum parallelism supported by hardware
     bool start(const std::vector<CardRange>& handRanges, uint64_t boardCards = 0, uint64_t deadCards = 0,
-               bool enumerateAll = false, double stdevTarget = 5e-5,
+               AnalysisType analysisType = AnalysisType::enumeration, double stdevTarget = 5e-5,
                std::function<void(const Results&)> callback = nullptr,
                double updateInterval = 0.2, unsigned threadCount = 0);
 
