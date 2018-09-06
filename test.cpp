@@ -360,7 +360,7 @@ class EquityCalculatorTest : public ttest::TestBase
             if (r.time >= 2)
                 eq.stop();
         };
-        eq.start({"random", "random"}, 0, 0, AnalysisType::monte_carlo, 0, callback, 1.0);
+        eq.start({"random", "random"}, 0, 0, false, false, 0, callback, 1.0);
         eq.wait();
         auto r = eq.getResults();
         TTEST_EQUAL(r.time >= 0.45 && r.time <= 0.55, true);
@@ -373,35 +373,32 @@ class EquityCalculatorTest : public ttest::TestBase
             if (r.time >= 2)
                 eq.stop();
         };
-        eq.start({"random", "random"}, 0, 0, AnalysisType::monte_carlo, 0, callback, 1.0);
+        eq.start({"random", "random"}, 0, 0, false, false, 0, callback, 1.0);
         eq.wait();
         auto r = eq.getResults();
         TTEST_EQUAL(r.hands >= 3000000 && r.hands <= 3000000 + 16 * 0x1000, true);
     }
 
-    TTEST_CASE("test 1 - enumeration") { enumTest(TESTDATA[0]); }
     TTEST_CASE("test 1 - monte carlo") { monteCarloTest(TESTDATA[0]); }
-    TTEST_CASE("test 1 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[0]); }
+    TTEST_CASE("test 1 - enumeration") { enumTest(TESTDATA[0]); }
 
-    TTEST_CASE("test 2 - enumeration") { enumTest(TESTDATA[1]); }
     TTEST_CASE("test 2 - monte carlo") { monteCarloTest(TESTDATA[1]); }
-    TTEST_CASE("test 2 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[1]); }
+    TTEST_CASE("test 2 - enumeration") { enumTest(TESTDATA[1]); }
 
-    TTEST_CASE("test 3 - enumeration") { enumTest(TESTDATA[2]); }
     TTEST_CASE("test 3 - monte carlo") { monteCarloTest(TESTDATA[2]); }
-    TTEST_CASE("test 3 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[2]); }
+    TTEST_CASE("test 3 - enumeration") { enumTest(TESTDATA[2]); }
 
-    TTEST_CASE("test 4 - enumeration") { enumTest(TESTDATA[3]); }
     TTEST_CASE("test 4 - monte carlo") { monteCarloTest(TESTDATA[3]); }
-    TTEST_CASE("test 4 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[3]); }
+    TTEST_CASE("test 4 - enumeration") { enumTest(TESTDATA[3]); }
 
-    TTEST_CASE("test 5 - enumeration") { enumTest(TESTDATA[4]); }
     TTEST_CASE("test 5 - monte carlo") { monteCarloTest(TESTDATA[4]); }
-    TTEST_CASE("test 5 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[4]); }
+    TTEST_CASE("test 5 - enumeration") { enumTest(TESTDATA[4]); }
 
-    TTEST_CASE("test 6 - enumeration") { enumTest(TESTDATA[5]); }
     TTEST_CASE("test 6 - monte carlo") { monteCarloTest(TESTDATA[5]); }
-    TTEST_CASE("test 6 - dynamic monte carlo") { dynamicMonteCarloTest(TESTDATA[5]); }
+    TTEST_CASE("test 6 - enumeration") { enumTest(TESTDATA[5]); }
+
+    TTEST_CASE("test 7 - monte carlo") { monteCarloTest(TESTDATA[6]); }
+    // TTEST_CASE("test 7 - enumeration") { enumTest(TESTDATA[6]); } -- don't enable this
 
 };
 
