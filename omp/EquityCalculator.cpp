@@ -11,7 +11,8 @@ namespace omp {
 
 // Start new calculation and spawn threads.
 bool EquityCalculator::start(const std::vector<CardRange>& handRanges, uint64_t boardCards, uint64_t deadCards,
-                             AnalysisType analysisType, double stdevTarget, std::function<void(const Results&)> callback,
+                             bool enumerateAll, bool recordHandWins, double stdevTarget,
+                             std::function<void(const Results&)> callback,
                              double updateInterval, unsigned threadCount)
 {
     if (handRanges.size() == 0 || handRanges.size() > MAX_PLAYERS)
@@ -30,7 +31,7 @@ bool EquityCalculator::start(const std::vector<CardRange>& handRanges, uint64_t 
     for (unsigned i = 0; i < combinedRanges.size(); ++i) {
         if (combinedRanges[i].combos().size() == 0)
             return false;
-        if (!(analysisType == AnalysisType::enumeration))
+        if (!(enumerateAll))
             combinedRanges[i].shuffle();
         mCombinedRanges[i] = combinedRanges[i];
     }
@@ -41,7 +42,8 @@ bool EquityCalculator::start(const std::vector<CardRange>& handRanges, uint64_t 
     mBatchSum = mBatchSumSqr = mBatchCount = 0;
     mResults = Results();
     mResults.players = (unsigned)handRanges.size();
-    mResults.analysisType = analysisType;
+    mResults.enumerateAll = enumerateAll;
+    mResults.recordHandWins = recordHandWins;
     mUpdateResults = mResults;
     mStdevTarget = stdevTarget;
     mCallback = callback;
@@ -55,15 +57,12 @@ bool EquityCalculator::start(const std::vector<CardRange>& handRanges, uint64_t 
     // Start threads.
     mThreads.clear();
     for (unsigned i = 0; i < threadCount; ++i) {
-        mThreads.emplace_back([this, analysisType]{
-            if (analysisType == AnalysisType::enumeration){
+        mThreads.emplace_back([this, enumerateAll]{
+            if (enumerateAll){
                 enumerate();
             }
-            else if(analysisType == AnalysisType::monte_carlo){
-                simulateRandomWalkMonteCarlo();
-            }
             else{
-                simulateDynamicMonteCarlo();
+                simulateRandomWalkMonteCarlo();
             }
         });
     }
@@ -197,13 +196,6 @@ void EquityCalculator::simulateRandomWalkMonteCarlo()
     }
 
     updateResults(stats, true);
-}
-
-
-// same as random walk monte carlo, but records results for all player/hand pairs
-void EquityCalculator::simulateDynamicMonteCarlo()
-{
-    return;
 }
 
 
@@ -737,7 +729,7 @@ void EquityCalculator::updateResults(const BatchResults& stats, bool threadFinis
         mResults.intervalHands = 0;
         mResults.stdev = std::sqrt(1e-9 + mBatchSumSqr - mBatchSum * mBatchSum / mBatchCount) / mBatchCount;
         mResults.stdevPerHand = mResults.stdev * std::sqrt(mResults.hands);
-        if (mResults.analysisType == AnalysisType::enumeration) {
+        if (mResults.enumerateAll) {
             mResults.progress = (double)mEnumPosition / getPreflopCombinationCount();
         } else {
             double estimatedHands = std::pow(mResults.stdev / mStdevTarget, 2) * mResults.hands;
@@ -745,7 +737,7 @@ void EquityCalculator::updateResults(const BatchResults& stats, bool threadFinis
         }
         mResults.preflopCombos = getPreflopCombinationCount();
 
-        if (!(mResults.analysisType == AnalysisType::enumeration) && mResults.stdev < mStdevTarget) //TODO use max stdev of any player
+        if (!mResults.enumerateAll && mResults.stdev < mStdevTarget)
             mStopped = true;
 
         for (unsigned i = 0; i < mResults.players; ++i)

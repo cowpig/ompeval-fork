@@ -18,13 +18,6 @@
 
 namespace omp {
 
-enum class AnalysisType
-{
-    enumeration,
-    monte_carlo,
-    dynamic_monte_carlo
-};
-
 // Calculates all-in equities in Texas Holdem for given player hand ranges, board cards and dead cards. Supports both
 // exact enumeration and monte carlo simulation.
 class EquityCalculator
@@ -38,6 +31,8 @@ public:
         double equity[MAX_PLAYERS] = {};
         // Wins by player.
         uint64_t wins[MAX_PLAYERS] = {};
+        // Wins by player-hand.
+        //TODO std::map<uint64_t wins[MAX_PLAYERS]
         // Ties by player, adjusted for equity: 2-way splits = 1/2, 3-way = 1/3 etc..
         double ties[MAX_PLAYERS] = {};
         // Wins for each combination of winning players. Index ranges from 0 to 2^(n-1), where
@@ -64,7 +59,9 @@ public:
         // How many showdowns were actually evaluated (instead of using lookups or isomorphism).
         uint64_t evaluations = 0;
         // Whether enumeration or monte carlo was used.
-        AnalysisType analysisType = AnalysisType::enumeration;
+        bool enumerateAll = false;
+        // Whether wins were record by player-hand or just by player (whole range)
+        bool recordHandWins = false;
         // Is calculation finished. (Includes stopping.)
         bool finished = false;
     };
@@ -73,13 +70,14 @@ public:
     // After calling start() succesfully, wait() must be called in order wait for threads to finish.
     // handRanges: hand ranges for each player
     // boardCards/deadCards: bitmasks for board and dead cards
-    // analysisType: enumeration, monte_carlo, or dynamic_monte_carlo
+    // enumerateAll: enumeration or monte_carlo
+    // recordHandWins: record wins by player or by individual hand
     // stdevTarget: stops monte carlo when standard deviation is smaller than this, use 0 for infinite simulation
     // callback: function that is called periodically with incomplete results
     // updateInterval: how often callback is called
     // threadCount: number of threads to spawn, 0 for maximum parallelism supported by hardware
     bool start(const std::vector<CardRange>& handRanges, uint64_t boardCards = 0, uint64_t deadCards = 0,
-               AnalysisType analysisType = AnalysisType::enumeration, double stdevTarget = 5e-5,
+               bool enumerateAll = false, bool recordHandWins = false, double stdevTarget = 5e-5,
                std::function<void(const Results&)> callback = nullptr,
                double updateInterval = 0.2, unsigned threadCount = 0);
 

@@ -265,18 +265,22 @@ class EquityCalculatorTest : public ttest::TestBase
                 {0, 183, 28, 0, 28, 0, 380, 201}});
         td.emplace_back(TestCase{ {"AA,KK", "KK,QQ", "QQ,AA" }, "", "",
                 {0, 348272820, 119882736, 37653912, 303253020, 74015280, 1266624, 3904200}});
+        td.emplace_back(TestCase{ {"random", "random", "random", "random" }, "2c9hTc", "",
+                {0, 2807946963, 2807946963, 76006646, 2807946963, 76006646, 76006646, 4638707,
+                    2807946963, 76006646, 76006646, 4638707, 76006646, 4638707, 4638707, 1038120}});
         return td;
     }(); // Workaround for MSVC2013's incomplete initializer list support.
 
     void enumTest(const TestCase& tc)
     {
         std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
-        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead), AnalysisType::enumeration))
+        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead), true))
                 throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
         auto results = eq.getResults();
         for (unsigned i = 0; i < (1u << tc.ranges.size()); ++i)
             TTEST_EQUAL(results.winsByPlayerMask[i], tc.expectedResults[i]);
+        cout << " enumTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }
 
     void monteCarloTest(const TestCase& tc)
@@ -296,41 +300,20 @@ class EquityCalculatorTest : public ttest::TestBase
             }
         };
         if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
-                AnalysisType::monte_carlo, 0, callback, 0.1))
+                false, false, 0, callback, 0.1))
             throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
-        if (timeout)
-            throw ttest::TestException("Didn't converge to correct results in time!");
-    }
-
-    void dynamicMonteCarloTest(const TestCase& tc)
-    {
-        double hands = accumulate(tc.expectedResults.begin(), tc.expectedResults.end(), 0.0);
-        std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
-        bool timeout = false;
-
-        // TODO:
-        //  use dyanmic monte carlo
-        //  add up wins for all the hands for each player
-        //  perform the same calc with those numbers
-        auto callback = [&](const EquityCalculator::Results& r){
-            double maxErr = 0;
-            for (unsigned i = 0; i < (1u << tc.ranges.size()); ++i)
-                maxErr = max(std::abs(tc.expectedResults[i] / hands - (double) r.winsByPlayerMask[i] / r.hands), maxErr);
-            if (maxErr < 2e-4)
-                eq.stop();
-            if (r.time > 10) {
-                timeout = true;
-                eq.stop();
+        auto results = eq.getResults();
+        if (timeout){
+            cout << "monteCarloTest results:" << endl;
+            for (unsigned i = 0; i < (1u << tc.ranges.size()); ++i){
+                double err = std::abs(tc.expectedResults[i] / hands - (double) results.winsByPlayerMask[i] / results.hands);
+                cout << i << "\t" << tc.expectedResults[i] << "|" << results.winsByPlayerMask[i] << "\t" << err << endl;
             }
-        };
-        if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
-                AnalysisType::dynamic_monte_carlo, 0, callback, 0.1))
-            throw ttest::TestException("Invalid hand ranges!");
-        eq.wait();
-        if (timeout)
+            cout << " (" << results.hands << " total hands)" << endl;
             throw ttest::TestException("Didn't converge to correct results in time!");
-
+        }
+        cout << " monteCarloTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }
 
     TTEST_BEFORE()
