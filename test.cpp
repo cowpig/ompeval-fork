@@ -346,7 +346,7 @@ class EquityCalculatorTest : public ttest::TestBase
 
     TTEST_CASE("start() returns false when too many players")
     {
-        TTEST_EQUAL(eq.start({"AA", "KK", "QQ", "JJ", "TT", "99", "88"}), false);
+        TTEST_EQUAL(eq.start({"AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44"}), false);
     }
 
     TTEST_CASE("start() returns false when too few cards left in the deck")
