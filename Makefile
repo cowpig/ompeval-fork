@@ -1,4 +1,5 @@
 CXXFLAGS += -O3 -std=c++11 -Wall -Wpedantic
+# CXXFLAGS += -ggdb -std=c++11 -Wall -Wpedantic
 
 ifdef SYSTEMROOT
     CXXFLAGS += -lpthread
