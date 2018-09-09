@@ -1,4 +1,3 @@
-
 #include "omp/HandEvaluator.h"
 #include "omp/EquityCalculator.h"
 #include "omp/Random.h"
@@ -283,7 +282,7 @@ class EquityCalculatorTest : public ttest::TestBase
         cout << " enumTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }
 
-    void monteCarloTest(const TestCase& tc)
+    void monteCarloTest(const TestCase& tc, const bool trackPlayerHands)
     {
         double hands = accumulate(tc.expectedResults.begin(), tc.expectedResults.end(), 0.0);
         std::vector<CardRange> ranges2(tc.ranges.begin(), tc.ranges.end());
@@ -312,6 +311,9 @@ class EquityCalculatorTest : public ttest::TestBase
             }
             cout << " (" << results.hands << " total hands)" << endl;
             throw ttest::TestException("Didn't converge to correct results in time!");
+        }
+        if (trackPlayerHands){
+            // TODO: assert the player hands' wins add up correctly
         }
         cout << " monteCarloTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }
@@ -379,26 +381,33 @@ class EquityCalculatorTest : public ttest::TestBase
         TTEST_EQUAL(r.hands >= 3000000 && r.hands <= 3000000 + 16 * 0x1000, true);
     }
 
-    TTEST_CASE("test 1 - monte carlo") { monteCarloTest(TESTDATA[0]); }
+    TTEST_CASE("test 1 - monte carlo") { monteCarloTest(TESTDATA[0], false); }
+    TTEST_CASE("test 1 - carlo w/hands") { monteCarloTest(TESTDATA[0], true); }
     TTEST_CASE("test 1 - enumeration") { enumTest(TESTDATA[0]); }
 
-    TTEST_CASE("test 2 - monte carlo") { monteCarloTest(TESTDATA[1]); }
+    TTEST_CASE("test 2 - monte carlo") { monteCarloTest(TESTDATA[1], false); }
+    TTEST_CASE("test 2 - carlo w/hands") { monteCarloTest(TESTDATA[1], true); }
     TTEST_CASE("test 2 - enumeration") { enumTest(TESTDATA[1]); }
 
-    TTEST_CASE("test 3 - monte carlo") { monteCarloTest(TESTDATA[2]); }
+    TTEST_CASE("test 3 - monte carlo") { monteCarloTest(TESTDATA[2], false); }
+    TTEST_CASE("test 3 - carlo w/hands") { monteCarloTest(TESTDATA[2], true); }
     TTEST_CASE("test 3 - enumeration") { enumTest(TESTDATA[2]); }
 
-    TTEST_CASE("test 4 - monte carlo") { monteCarloTest(TESTDATA[3]); }
+    TTEST_CASE("test 4 - monte carlo") { monteCarloTest(TESTDATA[3], false); }
+    TTEST_CASE("test 4 - carlo w/hands") { monteCarloTest(TESTDATA[3], true); }
     TTEST_CASE("test 4 - enumeration") { enumTest(TESTDATA[3]); }
 
-    TTEST_CASE("test 5 - monte carlo") { monteCarloTest(TESTDATA[4]); }
+    TTEST_CASE("test 5 - monte carlo") { monteCarloTest(TESTDATA[4], false); }
+    TTEST_CASE("test 5 - carlo w/hands") { monteCarloTest(TESTDATA[4], true); }
     TTEST_CASE("test 5 - enumeration") { enumTest(TESTDATA[4]); }
 
-    TTEST_CASE("test 6 - monte carlo") { monteCarloTest(TESTDATA[5]); }
+    TTEST_CASE("test 6 - monte carlo") { monteCarloTest(TESTDATA[5], false); }
+    TTEST_CASE("test 6 - carlo w/hands") { monteCarloTest(TESTDATA[5], true); }
     TTEST_CASE("test 6 - enumeration") { enumTest(TESTDATA[5]); }
 
-    TTEST_CASE("test 7 - monte carlo") { monteCarloTest(TESTDATA[6]); }
-    // TTEST_CASE("test 7 - enumeration") { enumTest(TESTDATA[6]); } -- don't enable this
+    TTEST_CASE("test 7 - monte carlo") { monteCarloTest(TESTDATA[6], false); }
+    TTEST_CASE("test 7 - carlo w/hands") { monteCarloTest(TESTDATA[6], true); }
+    // TTEST_CASE("test 7 - enumeration") { enumTest(TESTDATA[6]); } -- don't enable this (expected data isn't even correct)
 
 };
 
