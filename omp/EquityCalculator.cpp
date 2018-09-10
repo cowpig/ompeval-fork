@@ -264,6 +264,7 @@ void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers,
     }
 
     stats->winsByPlayerMask[winnersMask] += weight;
+    // if dynamic monte carlo, instead update stats->winsByPlayerHandMask += weight
 }
 
 // Calculates exact equities by enumerating through all possible combinations.

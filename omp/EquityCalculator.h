@@ -32,7 +32,7 @@ public:
         // Wins by player.
         uint64_t wins[MAX_PLAYERS] = {};
         // Wins by player-hand.
-        //TODO std::map<uint64_t wins[MAX_PLAYERS]
+        std::map<uint64_t, uint64_t[MAX_PLAYERS]> handWins = {}
         // Ties by player, adjusted for equity: 2-way splits = 1/2, 3-way = 1/3 etc..
         double ties[MAX_PLAYERS] = {};
         // Wins for each combination of winning players. Index ranges from 0 to 2^(n-1), where
