@@ -1,10 +1,13 @@
 #ifndef OMP_CARDRANGE_H
 #define OMP_CARDRANGE_H
 
+#include "Hand.h"
+
 #include <string>
 #include <vector>
 #include <array>
 #include <cstdint>
+#include <string>
 
 namespace omp {
 
@@ -40,7 +43,21 @@ public:
     }
 
     // Returns a 64-bit bitmask of cards from a string like "2c8hAh".
+    // the bitmask returns a 1 at the idx of whichever cards are present in the string
+    // e.g. 2s has idx 0 and its mask is 0x1
     static uint64_t getCardMask(const std::string& text);
+    static std::string maskToHandStr(uint64_t mask);
+    static std::string handToStr(const Hand mask);
+
+    // cards numbered 0-51, where {0, 1, 2, 3, 4 ... 51} == {2s, 2h, 2c, 2d, 3s ... Ad}
+    static std::string cardNumberToStr(unsigned c);
+    static unsigned strToCardNumber(std::string card);
+
+    static char rankToChar(unsigned c);
+    static char suitToChar(unsigned c);
+    static unsigned charToRank(char c);
+    static unsigned charToSuit(char c);
+
 
 private:
     bool parseHand(const char*&p);
@@ -52,8 +69,6 @@ private:
     void addCombosPlus(unsigned rank1, unsigned rank2, bool suited, bool offsuited);
     void addCombo(unsigned c1, unsigned c2);
     void removeDuplicates();
-    static unsigned charToRank(char c);
-    static unsigned charToSuit(char c);
 
     std::vector<std::array<uint8_t,2>> mCombinations;
 };

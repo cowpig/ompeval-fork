@@ -1,9 +1,12 @@
 #include "CardRange.h"
 #include "Constants.h"
 #include "Util.h"
+#include "Hand.h"
+
 #include <locale>
 #include <algorithm>
 #include <cassert>
+#include <string>
 
 namespace omp {
 
@@ -68,6 +71,34 @@ uint64_t CardRange::getCardMask(const std::string& text)
 
     return cards;
 }
+
+std::string CardRange::maskToHandStr(uint64_t mask)
+{
+    return "TODO";
+}
+
+std::string CardRange::handToStr(const Hand mask)
+{
+    return "TODO";
+}
+
+std::string CardRange::cardNumberToStr(unsigned c)
+{
+    unsigned rank = c / 4;
+    unsigned suit = c % 4;
+    std::string s;
+    s.push_back(rankToChar(rank));
+    s.push_back(suitToChar(suit));
+    return s;
+}
+
+unsigned CardRange::strToCardNumber(std::string card)
+{
+    unsigned rank = charToRank(card[0]);
+    unsigned suit = charToSuit(card[1]);
+    return 4 * rank + suit;
+}
+
 
 // Parses a single hand and advances pointer p.
 bool CardRange::parseHand(const char*&p)
@@ -223,7 +254,33 @@ unsigned CardRange::charToRank(char c)
         case '4': return 2;
         case '3': return 1;
         case '2': return 0;
+        // capitals, to maintain isomorphism with rankToChar
+        case 'A': return 12;
+        case 'K': return 11;
+        case 'Q': return 10;
+        case 'J': return 9;
+        case 'T': return 8;
         default: return ~0u;
+    }
+}
+
+char CardRange::rankToChar(unsigned c)
+{
+    switch(c) {
+        case 12: return 'A';
+        case 11: return 'K';
+        case 10: return 'Q';
+        case 9: return 'J';
+        case 8: return 'T';
+        case 7: return '9';
+        case 6: return '8';
+        case 5: return '7';
+        case 4: return '6';
+        case 3: return '5';
+        case 2: return '4';
+        case 1: return '3';
+        case 0: return '2';
+        default: return '?';
     }
 }
 
@@ -235,6 +292,17 @@ unsigned CardRange::charToSuit(char c)
         case 'c': return 2;
         case 'd': return 3;
         default: return ~0u;
+    }
+}
+
+char CardRange::suitToChar(unsigned c)
+{
+    switch(c) {
+        case 0: return 's';
+        case 1: return 'h';
+        case 2: return 'c';
+        case 3: return 'd';
+        default: return '?';
     }
 }
 

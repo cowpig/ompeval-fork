@@ -9,6 +9,7 @@
 #include <list>
 #include <numeric>
 #include <cmath>
+#include <bitset>
 
 using namespace std;
 using namespace omp;
@@ -127,6 +128,59 @@ class HandTest : public ttest::TestBase
     {
         TTEST_EQUAL((Hand(4) + Hand(8)).rankKey(), (Hand(9) + Hand(5)).rankKey());
         TTEST_EQUAL((Hand(4) + Hand(8)).rankKey() == (Hand(12) + Hand(5)).rankKey(), false);
+    }
+
+    TTEST_CASE("string conversion")
+    {
+        // unsigned ace = CardRange::charToRank('a');
+        // unsigned ten = CardRange::charToRank('t');
+        // unsigned two = CardRange::charToRank('2');
+
+        // unsigned club = CardRange::charToSuit('c');
+        // unsigned spade = CardRange::charToSuit('s');
+        // unsigned heart = CardRange::charToSuit('h');
+
+        // Hand h1 = Hand::empty() + Hand(ace * 4 + club);
+        // TTEST_EQUAL(CardRange::handToStr(h1), "Ac");
+
+        // Hand h2 = Hand::empty() + Hand(ace * 4 + club) + Hand(ten * 4 + heart) + Hand(two * 4 + spade);
+        // TTEST_EQUAL(CardRange::handToStr(h2), "AcTh2s");
+
+        // TTEST_EQUAL(CardRange::cardMaskToStr(CardRange::getCardMask("9c7c3d2d")), "9c7c3d2d");
+
+
+        // -- useful in my attempt to reverse-engineer the various encodings --
+        std::cout << " === bitmask examples === " << std::endl;
+        std::cout << "2s (idx 0) " << std::bitset<64>(CardRange::getCardMask("2s")) << std::endl;
+        std::cout << "2s2h (idx 0, 1) " << std::bitset<64>(CardRange::getCardMask("2s2h")) << std::endl;
+        std::cout << "2s2h2c (idx 0, 1, 2) " << std::bitset<64>(CardRange::getCardMask("2s2h2c")) << std::endl;
+        std::cout << "2s3s (idx 0, 4) " << std::bitset<64>(CardRange::getCardMask("2s3s")) << std::endl;
+        std::cout << "2h3h4h5h (idx 1, 5, 9, 13) " << std::bitset<64>(CardRange::getCardMask("2h3h4h5h")) << std::endl;
+        std::cout << " === " << std::endl;
+
+        std::cout << " === hand examples === " << std::endl;
+        std::cout << "EMPTY key:                      " << std::bitset<64>(Hand::empty().key()) << " mask: " << std::bitset<64>(Hand::empty().mask()) << std::endl;
+
+        Hand two_s = Hand::empty() + Hand(CardRange::strToCardNumber("2s"));
+        std::cout << "2s (idx 0) key:                 " << std::bitset<64>(two_s.key()) << " mask: " << std::bitset<64>(two_s.mask()) << std::endl;
+
+        Hand two_s_two_h = two_s + Hand(CardRange::strToCardNumber("2h"));
+        std::cout << "2s2h (idx 0, 1) key:            " << std::bitset<64>(two_s_two_h.key()) << " mask: " << std::bitset<64>(two_s_two_h.mask()) << std::endl;
+
+        Hand two_s_two_h_two_c = two_s_two_h + Hand(CardRange::strToCardNumber("2c"));
+        std::cout << "2s2h2c (idx 0, 1, 2) key:       " << std::bitset<64>(two_s_two_h_two_c.key()) << " mask: " << std::bitset<64>(two_s_two_h_two_c.mask()) << std::endl;
+
+        Hand two_s_three_s = two_s + Hand(CardRange::strToCardNumber("3s"));
+        std::cout << "2s3s (idx 0, 4) key:            " << std::bitset<64>(two_s_three_s.key()) << " mask: " << std::bitset<64>(two_s_three_s.mask()) << std::endl;
+
+        Hand h5 = Hand::empty()
+                + Hand(CardRange::strToCardNumber("2h"))
+                + Hand(CardRange::strToCardNumber("3h"))
+                + Hand(CardRange::strToCardNumber("4h"))
+                + Hand(CardRange::strToCardNumber("5h"));
+        std::cout << "2h3h4h5h (idx 1, 5, 9, 13) key: " << std::bitset<64>(h5.key()) << " mask: " << std::bitset<64>(h5.mask()) << std::endl;
+        std::cout << " === " << std::endl;
+
     }
 
     void enumRankCombos(unsigned n, const Hand& h, unordered_set<uint32_t>& keys,

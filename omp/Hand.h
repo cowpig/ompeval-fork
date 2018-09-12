@@ -165,14 +165,6 @@ struct Hand
         #endif
     }
 
-private:
-    static Hand CARDS[CARD_COUNT];
-    static const Hand EMPTY;
-    static const unsigned CARD_COUNT_SHIFT = 32;
-    static const unsigned SUITS_SHIFT = 48;
-    static const uint64_t FLUSH_CHECK_MASK64 = 0x8888ull << SUITS_SHIFT;
-    static const uint32_t FLUSH_CHECK_MASK32 = 0x8888ull << (SUITS_SHIFT - 32);
-
     // Returns the counters.
     uint32_t counters() const
     {
@@ -210,6 +202,14 @@ private:
         return mMask;
         #endif
     }
+
+private:
+    static Hand CARDS[CARD_COUNT];
+    static const Hand EMPTY;
+    static const unsigned CARD_COUNT_SHIFT = 32;
+    static const unsigned SUITS_SHIFT = 48;
+    static const uint64_t FLUSH_CHECK_MASK64 = 0x8888ull << SUITS_SHIFT;
+    static const uint32_t FLUSH_CHECK_MASK32 = 0x8888ull << (SUITS_SHIFT - 32);
 
     Hand(uint64_t key, uint64_t mask)
     {
