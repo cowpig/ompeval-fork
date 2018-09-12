@@ -15,6 +15,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <map>
 
 namespace omp {
 
@@ -31,8 +32,8 @@ public:
         double equity[MAX_PLAYERS] = {};
         // Wins by player.
         uint64_t wins[MAX_PLAYERS] = {};
-        // Wins by player-hand.
-        std::map<uint64_t, uint64_t[MAX_PLAYERS]> handWins = {}
+        // Wins by hand key, adjusted for equity: wins get a point, 2-way split gets 0.5, etc..
+        std::map<uint64_t, double> handWins = {};
         // Ties by player, adjusted for equity: 2-way splits = 1/2, 3-way = 1/3 etc..
         double ties[MAX_PLAYERS] = {};
         // Wins for each combination of winning players. Index ranges from 0 to 2^(n-1), where
@@ -71,7 +72,7 @@ public:
     // handRanges: hand ranges for each player
     // boardCards/deadCards: bitmasks for board and dead cards
     // enumerateAll: enumeration or monte_carlo
-    // recordHandWins: record wins by player or by individual hand
+    // recordHandWins: record wins by hand
     // stdevTarget: stops monte carlo when standard deviation is smaller than this, use 0 for infinite simulation
     // callback: function that is called periodically with incomplete results
     // updateInterval: how often callback is called
@@ -142,6 +143,7 @@ private:
         uint64_t evalCount = 0;
         uint8_t playerIds[MAX_PLAYERS];
         unsigned winsByPlayerMask[1 << MAX_PLAYERS] = {};
+        std::map<uint64_t, double> handWins = {};
     };
 
     // Ad-hoc struct used when sorting hands.
@@ -152,8 +154,7 @@ private:
     };
 
     void simulateRegularMonteCarlo();
-    void simulateRandomWalkMonteCarlo();
-    void simulateDynamicMonteCarlo();
+    void simulateRandomWalkMonteCarlo(bool recordHandWins);
 
     bool randomizeHoleCards(uint64_t &usedCardsMask, unsigned* comboIndexes, Hand* playerHands,
                             Rng& rng, FastUniformIntDistribution<unsigned,21>*comboDists);
@@ -161,7 +162,7 @@ private:
                         Rng& rng, FastUniformIntDistribution<unsigned,16>& cardDist);
     template<bool tFlushPossible = true>
     OMP_FORCE_INLINE void evaluateHands(const Hand* playerHands, unsigned nplayers, const Hand& board,
-            BatchResults* stats, unsigned weight);
+            BatchResults* stats, unsigned weight, bool recordHandWins);
     void enumerate();
     void enumerateBoard(const HandWithPlayerIdx* playerHands, unsigned nplayers,
                    const Hand& board, uint64_t usedCardsMask, BatchResults* stats);

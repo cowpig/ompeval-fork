@@ -57,12 +57,12 @@ bool EquityCalculator::start(const std::vector<CardRange>& handRanges, uint64_t 
     // Start threads.
     mThreads.clear();
     for (unsigned i = 0; i < threadCount; ++i) {
-        mThreads.emplace_back([this, enumerateAll]{
+        mThreads.emplace_back([this, enumerateAll, recordHandWins]{
             if (enumerateAll){
                 enumerate();
             }
             else{
-                simulateRandomWalkMonteCarlo();
+                simulateRandomWalkMonteCarlo(recordHandWins);
             }
         });
     }
@@ -114,7 +114,7 @@ void EquityCalculator::simulateRegularMonteCarlo()
 
         Hand board = fixedBoard;
         randomizeBoard(board, remainingCards, usedCardsMask | mDeadCards | mBoardCards, rng, cardDist);
-        evaluateHands(playerHands, nplayers, board, &stats, 1);
+        evaluateHands(playerHands, nplayers, board, &stats, 1, false);
 
         // Update periodically.
         if ((stats.evalCount & 0xfff) == 0) {
@@ -133,7 +133,7 @@ void EquityCalculator::simulateRegularMonteCarlo()
 // visited the preflop combinations can be thought of as a directed k-regular graph. The transition probability
 // matrix P then has k non-zero values on each row and column, and all non-zero elements have value of 1/k.
 // It is easy to see that (1,1,...,1) * P = (1,1,...,1), i.e. (1,1,...,1) is a stable distribution.
-void EquityCalculator::simulateRandomWalkMonteCarlo()
+void EquityCalculator::simulateRandomWalkMonteCarlo(bool recordHandWins)
 {
     unsigned nplayers = (unsigned)mHandRanges.size();
     Hand fixedBoard = getBoardFromBitmask(mBoardCards);
@@ -158,7 +158,7 @@ void EquityCalculator::simulateRandomWalkMonteCarlo()
             // Randomize board and evaluate for current holecards.
             Hand board = fixedBoard;
             randomizeBoard(board, remainingCards, usedCardsMask, rng, cardDist);
-            evaluateHands(playerHands, nplayers, board, &stats, 1);
+            evaluateHands(playerHands, nplayers, board, &stats, 1, recordHandWins);
 
             // Update results periodically.
             if ((stats.evalCount & 0xfff) == 0) {
@@ -246,7 +246,7 @@ void EquityCalculator::randomizeBoard(Hand& board, unsigned remainingCards, uint
 // Evaluates a single showdown with one or more players and stores the result.
 template<bool tFlushPossible>
 void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers, const Hand& board, BatchResults* stats,
-                                     unsigned weight)
+                                     unsigned weight, bool recordHandWins)
 {
     omp_assert(board.count() == BOARD_CARDS);
     ++stats->evalCount;
@@ -264,7 +264,14 @@ void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers,
     }
 
     stats->winsByPlayerMask[winnersMask] += weight;
-    // if dynamic monte carlo, instead update stats->winsByPlayerHandMask += weight
+    if (recordHandWins){
+        double n_winners = (double)bitCount(winnersMask);
+        for (unsigned i = 0, m = 1; i < nplayers; ++i, m <<= 1) {
+            if (m && winnersMask)
+                // TODO: I think rankKey() is wrong; need to figure out how Hand.h works
+                stats->handWins[playerHands[i].rankKey()] += 1.0 / n_winners;
+        }
+    }
 }
 
 // Calculates exact equities by enumerating through all possible combinations.
@@ -396,7 +403,7 @@ void EquityCalculator::enumerateBoard(const HandWithPlayerIdx* playerHands, unsi
     // Take a shortcut when no board cards left to iterate.
     unsigned remainingCards = BOARD_CARDS - board.count();
     if (remainingCards == 0) {
-        evaluateHands(hands, nplayers, board, stats, 1);
+        evaluateHands(hands, nplayers, board, stats, 1, false);
         return;
     }
 
@@ -448,7 +455,7 @@ void EquityCalculator::enumerateBoardRec(const Hand* playerHands, unsigned nplay
                 for (++i; i < ndeck && deck[i] >> 2 == rank; ++i)
                     ++multiplier;
 
-                evaluateHands<false>(playerHands, nplayers, newBoard, stats, multiplier * weight);
+                evaluateHands<false>(playerHands, nplayers, newBoard, stats, multiplier * weight, false);
             }
         } else {
             unsigned lastRank = ~0;
@@ -469,7 +476,7 @@ void EquityCalculator::enumerateBoardRec(const Hand* playerHands, unsigned nplay
                 }
 
                 Hand newBoard = board + deck[i];
-                evaluateHands(playerHands, nplayers, newBoard, stats, multiplier * weight);
+                evaluateHands(playerHands, nplayers, newBoard, stats, multiplier * weight, false);
             }
         }
         return;
@@ -503,7 +510,7 @@ void EquityCalculator::enumerateBoardRec(const Hand* playerHands, unsigned nplay
                 unsigned newWeight = BINOM_COEFF[irrelevantCount][repeats] * weight;
                 newBoard += deck[i + repeats - 1];
                 if (repeats == cardsLeft)
-                    evaluateHands(playerHands, nplayers, newBoard, stats, newWeight);
+                    evaluateHands(playerHands, nplayers, newBoard, stats, newWeight, false);
                 else
                     enumerateBoardRec(playerHands, nplayers, stats, newBoard, deck, ndeck, suitCounts,
                                   cardsLeft - repeats, i + irrelevantCount, newWeight);

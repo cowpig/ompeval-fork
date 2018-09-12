@@ -299,7 +299,7 @@ class EquityCalculatorTest : public ttest::TestBase
             }
         };
         if (!eq.start(ranges2, CardRange::getCardMask(tc.board), CardRange::getCardMask(tc.dead),
-                false, false, 0, callback, 0.1))
+                false, trackPlayerHands, 0, callback, 0.1))
             throw ttest::TestException("Invalid hand ranges!");
         eq.wait();
         auto results = eq.getResults();
