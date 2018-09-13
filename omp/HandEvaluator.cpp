@@ -11,8 +11,10 @@
 namespace omp {
 
 // Rank multipliers that guarantee a unique key for every rank combination in a 0-7 card hand.
-const unsigned HandEvaluator::RANKS[]{0x2000, 0x8001, 0x11000, 0x3a000, 0x91000, 0x176005, 0x366000,
-        0x41a013, 0x47802e, 0x479068, 0x48c0e4, 0x48f211, 0x494493};
+const unsigned HandEvaluator::RANKS[] {
+        0x2000, 0x8001, 0x11000, 0x3a000, 0x91000, 0x176005, 0x366000,
+        0x41a013, 0x47802e, 0x479068, 0x48c0e4, 0x48f211, 0x494493
+};
 
 // Rank multipliers for flush hands where only 1 of each rank is allowed. We could choose smaller numbers here but
 // we want to get the key from a bitmask, so powers of 2 are used.
@@ -38,8 +40,12 @@ void HandEvaluator::initCardConstants()
 {
     for (unsigned c = 0; c < CARD_COUNT; ++c) {
         unsigned rank = c / 4, suit = c % 4;
-        Hand::CARDS[c] = Hand((1ull << (4 * suit + Hand::SUITS_SHIFT)) + (1ull << Hand::CARD_COUNT_SHIFT)
-                              + RANKS[rank], 1ull << ((3 - suit) * 16 + rank));
+        Hand::CARDS[c] = Hand(
+            (1ull << (4 * suit + Hand::SUITS_SHIFT))
+          + (1ull << Hand::CARD_COUNT_SHIFT)
+          + RANKS[rank],
+          1ull << ((3 - suit) * 16 + rank)
+        );
     }
 }
 

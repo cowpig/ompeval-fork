@@ -72,14 +72,45 @@ uint64_t CardRange::getCardMask(const std::string& text)
     return cards;
 }
 
-std::string CardRange::maskToHandStr(uint64_t mask)
+std::string CardRange::cardMaskToStr(uint64_t mask)
 {
-    return "TODO";
+    std::string cards;
+    for (unsigned i=0; mask; mask >>= 1, ++i){
+        if (1ull & mask) {
+            // enable to get comma-separated cards
+            // if (!cards.empty())
+            //     cards.push_back(',');
+
+            cards += cardNumberToStr(i);
+        }
+    }
+    return cards;
 }
 
-std::string CardRange::handToStr(const Hand mask)
+std::string CardRange::handToStr(const Hand hand)
 {
-    return "TODO";
+    // the masks are encoded with:
+    //  1ull << ((3 - suit) * 16 + rank)
+    // ... so:
+    // 00 -> 3*16 + 0 == 48
+    // 11 -> 2*16 + 1 == 33
+    // 30 -> 0*16 + 0 == 0
+
+    uint64_t mask = hand.mask();
+    std::string cards;
+    for (unsigned i=0; mask; mask >>= 1, ++i){
+        if (1ull & mask) {
+            // enable to get comma-separated cards
+            // if (!cards.empty())
+            //     cards.push_back(',');
+
+            unsigned rank = i % 16;
+            unsigned suit = ~(i / 16) & 3ull;
+            cards.push_back(rankToChar(rank));
+            cards.push_back(suitToChar(suit));
+        }
+    }
+    return cards;
 }
 
 std::string CardRange::cardNumberToStr(unsigned c)

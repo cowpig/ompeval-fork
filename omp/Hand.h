@@ -236,6 +236,8 @@ private:
     __m128i mData;
     #else
     uint64_t mKey;
+
+    // 1ull << ((3 - suit) * 16 + rank)
     uint64_t mMask;
     #endif
 

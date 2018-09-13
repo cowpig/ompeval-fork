@@ -46,8 +46,11 @@ public:
     // the bitmask returns a 1 at the idx of whichever cards are present in the string
     // e.g. 2s has idx 0 and its mask is 0x1
     static uint64_t getCardMask(const std::string& text);
-    static std::string maskToHandStr(uint64_t mask);
-    static std::string handToStr(const Hand mask);
+    // inverse of the function above, without preserving order (cards will be in index order)
+    static std::string cardMaskToStr(uint64_t mask);
+
+    // essentially Hand->toString. Uses the hand mask, defined in HandEvaluator::initCardConstants
+    static std::string handToStr(const Hand hand);
 
     // cards numbered 0-51, where {0, 1, 2, 3, 4 ... 51} == {2s, 2h, 2c, 2d, 3s ... Ad}
     static std::string cardNumberToStr(unsigned c);
