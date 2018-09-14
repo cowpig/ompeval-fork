@@ -268,8 +268,7 @@ void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers,
         double n_winners = (double)bitCount(winnersMask);
         for (unsigned i = 0, m = 1; i < nplayers; ++i, m <<= 1) {
             if (m && winnersMask)
-                // TODO: I think rankKey() is wrong; need to figure out how Hand.h works
-                stats->handWins[playerHands[i].rankKey()] += 1.0 / n_winners;
+                stats->handWins[playerHands[i].mask()] += 1.0 / n_winners;
         }
     }
 }

@@ -319,6 +319,7 @@ class EquityCalculatorTest : public ttest::TestBase
         td.emplace_back(TestCase{ {"AA,KK", "KK,QQ", "QQ,AA" }, "", "",
                 {0, 348272820, 119882736, 37653912, 303253020, 74015280, 1266624, 3904200}});
         td.emplace_back(TestCase{ {"random", "random", "random", "random" }, "2c9hTc", "",
+                // These numbers are approximate and incorrect for enumeration
                 {0, 2807946963, 2807946963, 76006646, 2807946963, 76006646, 76006646, 4638707,
                     2807946963, 76006646, 76006646, 4638707, 76006646, 4638707, 4638707, 1038120}});
         return td;
@@ -367,7 +368,11 @@ class EquityCalculatorTest : public ttest::TestBase
             throw ttest::TestException("Didn't converge to correct results in time!");
         }
         if (trackPlayerHands){
-            // TODO: assert the player hands' wins add up correctly
+            double total_wins = 0;
+            for (auto const& handWin : results.handWins) {
+                total_wins += handWin.second;
+            }
+            TTEST_EQUAL((unsigned)(total_wins + 0.5), results.evaluations);
         }
         cout << " monteCarloTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }
