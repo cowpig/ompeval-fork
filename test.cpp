@@ -370,8 +370,10 @@ class EquityCalculatorTest : public ttest::TestBase
         if (trackPlayerHands){
             double total_wins = 0;
             for (auto const& handWin : results.handWins) {
+                if (handWin.first)
                 total_wins += handWin.second;
             }
+            // cout << "saw " << total_wins << " total wins over " << results.evaluations << " evals" << endl;
             TTEST_EQUAL((unsigned)(total_wins + 0.5), results.evaluations);
         }
         cout << " monteCarloTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";

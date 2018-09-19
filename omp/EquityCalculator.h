@@ -19,6 +19,7 @@
 
 namespace omp {
 
+
 // Calculates all-in equities in Texas Holdem for given player hand ranges, board cards and dead cards. Supports both
 // exact enumeration and monte carlo simulation.
 class EquityCalculator

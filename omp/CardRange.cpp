@@ -89,14 +89,17 @@ std::string CardRange::cardMaskToStr(uint64_t mask)
 
 std::string CardRange::handToStr(const Hand hand)
 {
+    return handMaskToStr(hand.mask());
+}
+
+std::string CardRange::handMaskToStr(uint64_t mask)
+{
     // the masks are encoded with:
     //  1ull << ((3 - suit) * 16 + rank)
     // ... so:
     // 00 -> 3*16 + 0 == 48
     // 11 -> 2*16 + 1 == 33
     // 30 -> 0*16 + 0 == 0
-
-    uint64_t mask = hand.mask();
     std::string cards;
     for (unsigned i=0; mask; mask >>= 1, ++i){
         if (1ull & mask) {

@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <cmath>
 
+// include for debug statements
+// #include <string>
+// #include <bitset>
+
 namespace omp {
 
 // Start new calculation and spawn threads.
@@ -263,13 +267,27 @@ void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers,
         }
     }
 
+    // std::cout << std::endl << "evaluating board " << CardRange::handToStr(board) << " w/hands: ";
+    // for (unsigned i = 0; i < nplayers; ++i) {
+    //     std::cout << CardRange::handToStr(playerHands[i]) << ",";
+    // }
+    // std::cout << std::endl;
+
     stats->winsByPlayerMask[winnersMask] += weight;
     if (recordHandWins){
         double n_winners = (double)bitCount(winnersMask);
         for (unsigned i = 0, m = 1; i < nplayers; ++i, m <<= 1) {
-            if (m && winnersMask)
+            if (m & winnersMask) {
+                // std::cout << "updating win for " << CardRange::handToStr(playerHands[i]) << std::endl;
+                // std::cout << "(because)" << std::bitset<64>(m) << " && " << std::bitset<64>(winnersMask) << std::endl;
                 stats->handWins[playerHands[i].mask()] += 1.0 / n_winners;
+
+            }
         }
+        // std::cout << "stats:" << std::endl;
+        // for (auto handwin : stats->handWins) {
+        //     std::cout << "\t" << CardRange::handMaskToStr(handwin.first) << "\t" << handwin.second << std::endl;
+        // }
     }
 }
 
@@ -788,6 +806,14 @@ double EquityCalculator::combineResults(const BatchResults& batch)
             }
         }
         mResults.winsByPlayerMask[actualPlayerMask] += batch.winsByPlayerMask[i];
+    }
+
+    if (mResults.recordHandWins) {
+        for ( auto const& handwin: batch.handWins ) {
+            uint64_t handmask = handwin.first;
+            double wins = handwin.second;
+            mResults.handWins[handmask] += wins;
+        }
     }
 
     mResults.evaluations += batch.evalCount;
