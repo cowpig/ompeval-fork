@@ -100,20 +100,19 @@ std::string CardRange::handMaskToStr(uint64_t mask)
     // 00 -> 3*16 + 0 == 48
     // 11 -> 2*16 + 1 == 33
     // 30 -> 0*16 + 0 == 0
-    std::string cards;
+
+    // we convert the handMask to a cardMask
+    uint64_t cardMask = 0ull;
     for (unsigned i=0; mask; mask >>= 1, ++i){
         if (1ull & mask) {
-            // enable to get comma-separated cards
-            // if (!cards.empty())
-            //     cards.push_back(',');
-
             unsigned rank = i % 16;
             unsigned suit = ~(i / 16) & 3ull;
-            cards.push_back(rankToChar(rank));
-            cards.push_back(suitToChar(suit));
+
+            unsigned card = 4 * rank + suit;
+            cardMask |= 1ull << card;
         }
     }
-    return cards;
+    return cardMaskToStr(cardMask);
 }
 
 std::string CardRange::cardNumberToStr(unsigned c)
