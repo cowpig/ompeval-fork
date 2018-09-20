@@ -370,12 +370,15 @@ class EquityCalculatorTest : public ttest::TestBase
         }
         if (trackPlayerHands){
             double total_wins = 0;
-            for (auto const& handWin : results.handWins) {
-                if (handWin.first)
-                total_wins += handWin.second;
+            unsigned total_hand_evals = 0;
+            for (auto const& handWin : results.handWinCounts) {
+                auto handWinCount = handWin.second;
+                total_wins += handWinCount.wins;
+                total_hand_evals += handWinCount.n_evals;
             }
             // cout << "saw " << total_wins << " total wins over " << results.evaluations << " evals" << endl;
             TTEST_EQUAL((unsigned)(total_wins + 0.5), results.evaluations);
+            TTEST_EQUAL(total_hand_evals, results.evaluations * results.players);
         }
         cout << " monteCarloTest " << results.evaluations << " evals  " << (1e-6 * results.speed) << "M/s  " << results.time << "s  ";
     }

@@ -280,12 +280,12 @@ void EquityCalculator::evaluateHands(const Hand* playerHands, unsigned nplayers,
             if (m & winnersMask) {
                 // std::cout << "updating win for " << CardRange::handToStr(playerHands[i]) << std::endl;
                 // std::cout << "(because)" << std::bitset<64>(m) << " && " << std::bitset<64>(winnersMask) << std::endl;
-                stats->handWins[playerHands[i].mask()] += 1.0 / n_winners;
-
+                stats->handWinCounts[playerHands[i].mask()].wins += 1.0 / n_winners;
             }
+            ++stats->handWinCounts[playerHands[i].mask()].n_evals;
         }
         // std::cout << "stats:" << std::endl;
-        // for (auto handwin : stats->handWins) {
+        // for (auto handwin : stats->handWinCounts) {
         //     std::cout << "\t" << CardRange::handMaskToStr(handwin.first) << "\t" << handwin.second << std::endl;
         // }
     }
@@ -809,10 +809,11 @@ double EquityCalculator::combineResults(const BatchResults& batch)
     }
 
     if (mResults.recordHandWins) {
-        for ( auto const& handwin: batch.handWins ) {
+        for ( auto const& handwin: batch.handWinCounts ) {
             uint64_t handmask = handwin.first;
-            double wins = handwin.second;
-            mResults.handWins[handmask] += wins;
+            auto handWinCount = handwin.second;
+            mResults.handWinCounts[handmask].wins += handWinCount.wins;
+            mResults.handWinCounts[handmask].n_evals += handWinCount.n_evals;
         }
     }
 

@@ -25,6 +25,10 @@ namespace omp {
 class EquityCalculator
 {
 public:
+    struct HandWinCount {
+        double wins = 0.0;
+        uint64_t n_evals = 0;
+    };
     struct Results
     {
         // Number of players.
@@ -33,8 +37,8 @@ public:
         double equity[MAX_PLAYERS] = {};
         // Wins by player.
         uint64_t wins[MAX_PLAYERS] = {};
-        // Wins by hand key, adjusted for equity: wins get a point, 2-way split gets 0.5, etc..
-        std::map<uint64_t, double> handWins = {};
+        // hand wins adjusted for equity: wins get a point, 2-way split gets 0.5, etc..
+        std::map<uint64_t, HandWinCount> handWinCounts = {};
         // Ties by player, adjusted for equity: 2-way splits = 1/2, 3-way = 1/3 etc..
         double ties[MAX_PLAYERS] = {};
         // Wins for each combination of winning players. Index ranges from 0 to 2^(n-1), where
@@ -144,7 +148,7 @@ private:
         uint64_t evalCount = 0;
         uint8_t playerIds[MAX_PLAYERS];
         unsigned winsByPlayerMask[1 << MAX_PLAYERS] = {};
-        std::map<uint64_t, double> handWins = {};
+        std::map<uint64_t, HandWinCount> handWinCounts = {};
     };
 
     // Ad-hoc struct used when sorting hands.
