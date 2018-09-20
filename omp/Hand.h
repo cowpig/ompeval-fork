@@ -231,12 +231,11 @@ private:
     // Bits 0-31: Key to non-flush lookup table (linear combination of the rank constants).
     // Bits 32-35: Card counter.
     // Bits 48-63: Suit counters.
-    // Bits 64-128: Bit mask for all cards (suits are in 16-bit groups).
+    // Bits 64-128: Bit mask for all cards (suits are in 16-bit groups). See comment below.
     #if OMP_SSE2
     __m128i mData;
     #else
     uint64_t mKey;
-
     // 1ull << ((3 - suit) * 16 + rank)
     uint64_t mMask;
     #endif

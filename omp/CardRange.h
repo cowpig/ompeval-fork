@@ -49,11 +49,11 @@ public:
     // inverse of the function above, without preserving order (cards will be in index order)
     static std::string cardMaskToStr(uint64_t mask);
 
-    // essentially Hand->toString. Uses the hand mask, defined in HandEvaluator::initCardConstants
+    // essentially Hand->toString. Uses the hand mask, defined in HandEvaluator::initCardConstants. re-orders cards by their index order
     static std::string handToStr(const Hand hand);
     static std::string handMaskToStr(uint64_t mask);
 
-    // cards numbered 0-51, where {0, 1, 2, 3, 4 ... 51} == {2s, 2h, 2c, 2d, 3s ... Ad}
+    // cards numbered 0-51, where {0, 1, 2, 3, 4 ... 51} == {2c, 2d, 2h, 2s, 3c ... As} -- see charToSuit for order
     static std::string cardNumberToStr(unsigned c);
     static unsigned strToCardNumber(std::string card);
 

@@ -184,7 +184,7 @@ bool CardRange::parseRank(const char*&p, unsigned& rank)
     return true;
 }
 
-// Parse a suit (s, h, c, d)
+// Parse a suit (c, d, h, s)
 bool CardRange::parseSuit(const char*&p, unsigned& suit)
 {
     suit = charToSuit(*p);
@@ -320,10 +320,10 @@ char CardRange::rankToChar(unsigned c)
 unsigned CardRange::charToSuit(char c)
 {
     switch(c) {
-        case 's': return 0;
-        case 'h': return 1;
-        case 'c': return 2;
-        case 'd': return 3;
+        case 'c': return 0;
+        case 'd': return 1;
+        case 'h': return 2;
+        case 's': return 3;
         default: return ~0u;
     }
 }
@@ -331,10 +331,10 @@ unsigned CardRange::charToSuit(char c)
 char CardRange::suitToChar(unsigned c)
 {
     switch(c) {
-        case 0: return 's';
-        case 1: return 'h';
-        case 2: return 'c';
-        case 3: return 'd';
+        case 0: return 'c';
+        case 1: return 'd';
+        case 2: return 'h';
+        case 3: return 's';
         default: return '?';
     }
 }

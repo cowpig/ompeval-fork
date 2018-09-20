@@ -132,23 +132,6 @@ class HandTest : public ttest::TestBase
 
     TTEST_CASE("string conversion")
     {
-        unsigned ace = CardRange::charToRank('a');
-        unsigned ten = CardRange::charToRank('t');
-        unsigned two = CardRange::charToRank('2');
-
-        unsigned club = CardRange::charToSuit('c');
-        unsigned spade = CardRange::charToSuit('s');
-        unsigned heart = CardRange::charToSuit('h');
-
-        Hand h1 = Hand::empty() + Hand(ace * 4 + club);
-        TTEST_EQUAL(CardRange::handToStr(h1), "Ac");
-
-        Hand h2 = Hand::empty() + Hand(ace * 4 + club) + Hand(ten * 4 + heart) + Hand(two * 4 + spade);
-        TTEST_EQUAL(CardRange::handToStr(h2), "AcTh2s");
-
-        TTEST_EQUAL(CardRange::cardMaskToStr(CardRange::getCardMask("2d3d7c9c")), "2d3d7c9c");
-
-
         // -- my attempt to reverse-engineer the various encodings --
         // std::cout << " === bitmask examples === " << std::endl;
         // std::cout << "2s (idx 0) " << std::bitset<64>(CardRange::getCardMask("2s")) << std::endl;
@@ -180,6 +163,24 @@ class HandTest : public ttest::TestBase
         //         + Hand(CardRange::strToCardNumber("5h"));
         // std::cout << "2h3h4h5h (idx 1, 5, 9, 13) key: " << std::bitset<64>(h5.key()) << " mask: " << std::bitset<64>(h5.mask()) << std::endl;
         // std::cout << " === " << std::endl;
+
+        unsigned ace = CardRange::charToRank('a');
+        unsigned ten = CardRange::charToRank('t');
+        unsigned two = CardRange::charToRank('2');
+
+        unsigned club = CardRange::charToSuit('c');
+        unsigned spade = CardRange::charToSuit('s');
+        unsigned heart = CardRange::charToSuit('h');
+
+        Hand h1 = Hand::empty() + Hand(ace * 4 + club);
+        TTEST_EQUAL(CardRange::handToStr(h1), "Ac");
+
+        Hand h2 = Hand::empty() + Hand(ace * 4 + club) + Hand(ten * 4 + heart) + Hand(two * 4 + spade) + Hand(two * 4 + club);
+
+        // order should always be: low->high, with suit order {s, c, d, h} -- see CardRange.cpp:charToSuit
+        TTEST_EQUAL(CardRange::handToStr(h2), "2c2sThAc");
+        TTEST_EQUAL(CardRange::cardMaskToStr(CardRange::getCardMask("9s9c2h7c2d3d")), "2d2h3d7c9c9s");
+
 
     }
 
